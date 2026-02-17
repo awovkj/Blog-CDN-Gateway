@@ -148,7 +148,6 @@ function generateHtml(urls, img, icon, avatar, beian, title, siteName, path, par
             right: 0;
             bottom: 0;
             background: rgba(0, 0, 0, 0.1);
-            backdrop-filter: blur(3px);
             z-index: -1;
             transition: background 0.3s ease;
         }
