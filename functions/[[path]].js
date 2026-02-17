@@ -2,8 +2,8 @@ let urls = [
     'https://bg.awovkj.com#EdgeOne CDN',
     // 'https://ali.blog.cmliussss.com#Ali CDN',
     // 'https://fastly.blog.cmliussss.com#Fastly CDN',
-    'https://www.awovkj.com#Vercel1 CDN',
-    'https://awovkj.com#Vercel2 CDN',
+    'https://blog.awovkj.com#Vercel1 CDN',
+    'https://vercel.awovkj.com#Vercel2 CDN',
     // 'https://awovkj.com#Netlify CDN'
 ];
 
