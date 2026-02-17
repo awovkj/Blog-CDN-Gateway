@@ -484,29 +484,76 @@ function generateHtml(urls, img, icon, avatar, beian, title, siteName, path, par
             list.appendChild(li);
         });
 
-        async function checkLatency(url) {
-            const start = Date.now();
+        const PROBE_ROUNDS = 2;
+        const BASE_TIMEOUT_MS = 2200;
+        const REDIRECT_DELAY_MS = 120;
+
+        function nowMs() {
+            return (typeof performance !== 'undefined' && performance.now)
+                ? performance.now()
+                : Date.now();
+        }
+
+        function buildProbeUrl(rawUrl) {
             try {
-                const controller = new AbortController();
-                const timeoutId = setTimeout(() => controller.abort(), 3000);
-                await fetch(url, { 
-                    method: 'HEAD', 
-                    mode: 'no-cors', 
-                    signal: controller.signal,
-                    cache: 'no-store'
-                });
-                clearTimeout(timeoutId);
-                return Date.now() - start;
-            } catch (error) {
-                return 9999;
+                const probeUrl = new URL('/favicon.ico', rawUrl);
+                probeUrl.searchParams.set('_latency_probe', Date.now().toString());
+                return probeUrl.toString();
+            } catch (_) {
+                const joiner = rawUrl.includes('?') ? '&' : '?';
+                return rawUrl + joiner + '_latency_probe=' + Date.now();
             }
+        }
+
+        async function probeOnce(url, timeoutMs) {
+            const start = nowMs();
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
+            try {
+                await fetch(buildProbeUrl(url), {
+                    method: 'GET',
+                    mode: 'no-cors',
+                    signal: controller.signal,
+                    cache: 'no-store',
+                    redirect: 'follow'
+                });
+                return Math.round(nowMs() - start);
+            } catch (_) {
+                return 9999;
+            } finally {
+                clearTimeout(timeoutId);
+            }
+        }
+
+        async function checkLatency(url) {
+            const samples = [];
+            for (let i = 0; i < PROBE_ROUNDS; i++) {
+                const latency = await probeOnce(url, BASE_TIMEOUT_MS + i * 300);
+                if (latency < 9999) samples.push(latency);
+                if (i < PROBE_ROUNDS - 1) {
+                    await new Promise(resolve => setTimeout(resolve, 40));
+                }
+            }
+
+            if (samples.length === 0) {
+                return { latency: 9999, score: 9999 };
+            }
+
+            samples.sort((a, b) => a - b);
+            const best = samples[0];
+            const median = samples[Math.floor(samples.length / 2)];
+            const jitter = samples[samples.length - 1] - samples[0];
+            const latency = Math.round(best * 0.7 + median * 0.3);
+            const score = latency + Math.round(jitter * 0.15);
+
+            return { latency, score };
         }
 
         async function runTests() {
             const results = await Promise.all(urls.map(async (urlStr, index) => {
                 const [testUrl, name] = urlStr.split('#');
-                const latency = await checkLatency(testUrl);
-                return { index, name, testUrl, latency };
+                const measurement = await checkLatency(testUrl);
+                return { index, name, testUrl, ...measurement };
             }));
 
             // Update UI with results
@@ -521,10 +568,10 @@ function generateHtml(urls, img, icon, avatar, beian, title, siteName, path, par
             });
 
             // Find fastest
-            const validResults = results.filter(r => r.latency < 9999);
+            const validResults = results.filter(r => r.score < 9999);
             if (validResults.length > 0) {
                 const fastest = validResults.reduce((prev, curr) => 
-                    prev.latency < curr.latency ? prev : curr
+                    prev.score < curr.score ? prev : curr
                 );
                 
                 const fastestEl = document.getElementById(\`item-\${fastest.index}\`);
@@ -534,19 +581,18 @@ function generateHtml(urls, img, icon, avatar, beian, title, siteName, path, par
                 subtitle.textContent = \`即将跳转至: \${fastest.name}\`;
                 subtitle.style.color = '#10b981';
 
-                // Redirect after shine animation completes
+                // Keep a tiny delay for UI feedback, then fast redirect
                 setTimeout(() => {
-                    window.location.href = fastest.testUrl + currentPath + currentParams;
-                }, 800);
+                    window.location.replace(fastest.testUrl + currentPath + currentParams);
+                }, REDIRECT_DELAY_MS);
             } else {
                  document.querySelector('.subtitle').textContent = '所有线路均不可用';
                  document.querySelector('.subtitle').style.color = '#dc2626';
             }
         }
 
-        window.onload = runTests;
+        window.addEventListener('DOMContentLoaded', runTests, { once: true });
     </script>
 </body>
 </html>`;
 }
-
