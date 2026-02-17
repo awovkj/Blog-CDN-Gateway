@@ -1,9 +1,9 @@
 let urls = [
-    'https://blog.cmliussss.com#EdgeOne CDN',
-    'https://ali.blog.cmliussss.com#Ali CDN',
-    'https://fastly.blog.cmliussss.com#Fastly CDN',
-    'https://vercel.blog.cmliussss.com#Vercel CDN',
-    'https://netlify.blog.cmliussss.com#Netlify CDN'
+    // 'https://blog.cmliussss.com#EdgeOne CDN',
+    // 'https://ali.blog.cmliussss.com#Ali CDN',
+    // 'https://fastly.blog.cmliussss.com#Fastly CDN',
+    'https://www.awovkj.com#Vercel CDN',
+    'https://awovkj.com#Netlify CDN'
 ];
 
 /**
@@ -51,7 +51,7 @@ async function handleRequest(request, env) {
         return fetch(网站图标);
     } else {
         // 先测速，不加载背景图片
-        let img = 'https://raw.cmliussss.com/keqing1080p.jpg'; // 默认图片
+        let img = 'https://tutu.510517.xyz/202602171655982.webp'; // 默认图片
         if (env.IMG) {
             const imgs = await ADD(env.IMG);
             img = imgs[Math.floor(Math.random() * imgs.length)];
