@@ -120,7 +120,6 @@ function generateHtml(urls, img, icon, avatar, beian, title, siteName, path, par
                 --fastest-shadow: rgba(16, 185, 129, 0.1);
             }
         }
-
         * {
             margin: 0;
             padding: 0;
