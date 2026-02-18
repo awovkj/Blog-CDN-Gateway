@@ -1,5 +1,5 @@
 let urls = [
-    'https://bg.awovkj.com#EdgeOne CDN',
+    'https://edgeone.awovkj.com#EdgeOne CDN',
     // 'https://ali.blog.cmliussss.com#Ali CDN',
     // 'https://fastly.blog.cmliussss.com#Fastly CDN',
     'https://blog.awovkj.com#Vercel1 CDN',
