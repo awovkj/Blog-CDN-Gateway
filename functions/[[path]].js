@@ -6,7 +6,7 @@ let urls = [
     'https://blog.awovkj.com#Vercel CDN',
     'https://vercel.awovkj.com#Vercel CDN',
     'https://cf.awovkj.com#CF CDN',
-//     'https://cf.awovkj.com#Netlify CDN'
+    'https://netlify.awovkj.com#Netlify CDN'
     ];
 
 /**
