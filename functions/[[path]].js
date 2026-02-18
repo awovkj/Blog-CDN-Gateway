@@ -4,8 +4,9 @@ let urls = [
     // 'https://fastly.blog.cmliussss.com#Fastly CDN',
     'https://blog.awovkj.com#Vercel1 CDN',
     'https://vercel.awovkj.com#Vercel2 CDN',
-    // 'https://awovkj.com#Netlify CDN'
-];
+    'https://cf.awovkj.com#CF CDN',
+//     'https://cf.awovkj.com#Netlify CDN'
+    ];
 
 /**
  * EdgeOne Pages 入口函数
