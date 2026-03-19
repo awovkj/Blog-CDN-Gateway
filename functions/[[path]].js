@@ -1,10 +1,10 @@
 let urls = [
-    'https://edgeone.awovkj.com#EdgeOne CDN',
+    // 'https://edgeone.awovkj.com#EdgeOne CDN',
     'https://edge.awovkj.com#EdgeOne CDN',
     // 'https://ali.blog.cmliussss.com#Ali CDN',
     // 'https://fastly.blog.cmliussss.com#Fastly CDN',
     'https://blog.awovkj.com#Vercel CDN',
-    'https://vercel.awovkj.com#Vercel CDN',
+    // 'https://vercel.awovkj.com#Vercel CDN',
     'https://cf.awovkj.com#CF CDN',
     'https://netlify.awovkj.com#Netlify CDN'
     ];
