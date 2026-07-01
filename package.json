@@ -4,6 +4,7 @@
     "description": "BlogCDN 智能访问网关",
     "main": "functions/[[path]].js",
     "scripts": {
+        "test": "node --test",
         "dev": "wrangler pages dev .",
         "deploy": "wrangler pages deploy ."
     },

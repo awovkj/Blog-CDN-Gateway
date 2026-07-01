@@ -15,7 +15,7 @@ let urls = [
  * @returns {Promise<Response>}
  */
 export async function onRequest(context) {
-    return await handleRequest(context.request, context.env);
+    return await handleRequest(context.request, context.env || {});
 }
 
 /**
@@ -23,12 +23,12 @@ export async function onRequest(context) {
  * @returns {Object} Worker 处理器对象
  */
 export default {
-    async fetch(request, env, ctx) {
-        return await handleRequest(request, env);
+    async fetch(request, env = {}, ctx) {
+        return await handleRequest(request, env || {});
     }
 };
 
-async function handleRequest(request, env) {
+async function handleRequest(request, env = {}) {
     const url = new URL(request.url);
     const path = url.pathname;
     const params = url.search;
@@ -670,8 +670,8 @@ function generateHtml(urls, img, icon, avatar, beian, title, siteName, path, par
 			logo.addEventListener('load', enableLogoEffects, { once: true });
 		}
 
-		const PROBE_ROUNDS = 2;
-		const BASE_TIMEOUT_MS = 2200;
+		const PROBE_ROUNDS = 1;
+		const BASE_TIMEOUT_MS = 1600;
 		const REDIRECT_DELAY_MS = 120;
 
 		function nowMs() {
@@ -745,42 +745,48 @@ function generateHtml(urls, img, icon, avatar, beian, title, siteName, path, par
 		}
 
 		async function runTests() {
-			const results = await Promise.all(urls.map(async (urlStr, index) => {
-				const [testUrl, name] = urlStr.split('#');
-				const measurement = await checkLatency(testUrl);
-				return { index, name: getRouteName(name, index), testUrl, ...measurement };
-			}));
+			let settledCount = 0;
+			let redirectStarted = false;
 
-			results.forEach(res => {
-				const el = document.getElementById(\`latency-\${res.index}\`);
-				updateLatency(el, res.latency);
-			});
+			function redirectTo(result) {
+				if (redirectStarted) return;
+				redirectStarted = true;
 
-			updateViewportFit();
-
-			const validResults = results.filter(r => r.score < 9999);
-			if (validResults.length > 0) {
-				const fastest = validResults.reduce((prev, curr) =>
-					prev.score < curr.score ? prev : curr
-				);
-
-				const fastestEl = document.getElementById(\`item-\${fastest.index}\`);
+				const fastestEl = document.getElementById(\`item-\${result.index}\`);
 				fastestEl.classList.add('fastest');
 
 				const subtitle = document.querySelector('.subtitle');
-				subtitle.textContent = \`?????: \${fastest.name}\`;
+				subtitle.textContent = \`最佳线路: \${result.name}\`;
 				subtitle.classList.add('is-success');
-				document.querySelector('.summary-label').textContent = '????';
+				document.querySelector('.summary-label').textContent = '即将跳转';
 
 				setTimeout(() => {
-					window.location.replace(fastest.testUrl + currentPath + currentParams);
+					window.location.replace(result.testUrl + currentPath + currentParams);
 				}, REDIRECT_DELAY_MS);
-			} else {
-				document.querySelector('.subtitle').textContent = '????????';
-				document.querySelector('.subtitle').classList.add('is-error');
-				document.querySelector('.summary-badge').classList.add('error');
-				document.querySelector('.summary-label').textContent = '????';
 			}
+
+			urls.forEach(async (urlStr, index) => {
+				const [testUrl, name] = urlStr.split('#');
+				const measurement = await checkLatency(testUrl);
+				const result = { index, name: getRouteName(name, index), testUrl, ...measurement };
+
+				const el = document.getElementById(\`latency-\${result.index}\`);
+				updateLatency(el, result.latency);
+				updateViewportFit();
+
+				settledCount++;
+				if (result.score < 9999) {
+					redirectTo(result);
+					return;
+				}
+
+				if (settledCount === urls.length && !redirectStarted) {
+					document.querySelector('.subtitle').textContent = '所有线路均不可用';
+					document.querySelector('.subtitle').classList.add('is-error');
+					document.querySelector('.summary-badge').classList.add('error');
+					document.querySelector('.summary-label').textContent = '检测失败';
+				}
+			});
 		}
 
 		window.addEventListener('load', updateViewportFit);
