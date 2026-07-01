@@ -186,3 +186,19 @@ test('client redirects after the first usable route without waiting for slow rou
 
   assert.deepEqual(harness.redirects, ['https://fast.example/blog?p=1']);
 });
+
+test('client redirects to Vercel CDN when every route probe fails', async () => {
+  const html = await renderHtml({
+    URL: 'https://vercel.example#Vercel CDN\nhttps://cf.example#CF CDN',
+    BEIAN: '',
+  });
+  const script = extractMainScript(html);
+  const harness = createClientHarness();
+
+  vm.runInNewContext(script, harness.context);
+  harness.callbacks.DOMContentLoaded();
+  await harness.advance(1800);
+
+  assert.deepEqual(harness.redirects, ['https://vercel.example/blog?p=1']);
+  assert.notEqual(harness.context.document.querySelector('.summary-label').textContent, '检测失败');
+});

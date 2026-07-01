@@ -630,6 +630,17 @@ function generateHtml(urls, img, icon, avatar, beian, title, siteName, path, par
 			return name && name.trim() ? name.trim() : \`?? \${index + 1}\`;
 		}
 
+		function getVercelFallbackUrl() {
+			const vercelRoute = urls.find(urlStr => {
+				const [, name] = urlStr.split('#');
+				return name && name.toLowerCase().includes('vercel');
+			});
+
+			if (vercelRoute) return vercelRoute.split('#')[0];
+
+			return 'https://blog.awovkj.com';
+		}
+
 		function updateViewportFit() {
 			const isMobile = window.matchMedia('(max-width: 640px)').matches;
 			const viewportHeight = window.visualViewport ? window.visualViewport.height : window.innerHeight;
@@ -781,10 +792,8 @@ function generateHtml(urls, img, icon, avatar, beian, title, siteName, path, par
 				}
 
 				if (settledCount === urls.length && !redirectStarted) {
-					document.querySelector('.subtitle').textContent = '所有线路均不可用';
-					document.querySelector('.subtitle').classList.add('is-error');
-					document.querySelector('.summary-badge').classList.add('error');
-					document.querySelector('.summary-label').textContent = '检测失败';
+					redirectStarted = true;
+					window.location.replace(getVercelFallbackUrl() + currentPath + currentParams);
 				}
 			});
 		}
