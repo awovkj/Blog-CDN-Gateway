@@ -1,7 +1,7 @@
 {
     "name": "blog-cdn-gateway",
     "version": "1.0.0",
-    "description": "BlogCDN 智能访问网关",
+    "description": "",
     "main": "functions/[[path]].js",
     "scripts": {
         "test": "node --test",
