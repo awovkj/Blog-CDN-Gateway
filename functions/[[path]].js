@@ -1,7 +1,7 @@
 let urls = [
     // 'https://edgeone.awovkj.com#EdgeOne CDN',
     'https://edge.awovkj.com#EdgeOne CDN',
-    'https://esa.awovkj.com/#Ali CDN',
+    'https://esa.awovkj.com#Ali CDN',
     // 'https://fastly.blog.cmliussss.com#Fastly CDN',
     'https://blog.awovkj.com#Vercel CDN',
     // 'https://vercel.awovkj.com#Vercel CDN',
